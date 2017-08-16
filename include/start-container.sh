@@ -8,13 +8,14 @@ if [ $# -gt 1 ]; then
 fi
 
 if [ -n "$1" ]; then
-    if [ -z "$VESPA_CONFIG_SERVERS" ]; then
-        echo "VESPA_CONFIG_SERVERS must be set with '-e VESPA_CONFIG_SERVERS=<comma separated list of config servers>' argument to docker."
+    if [ -z "$VESPA_CONFIGSERVERS" ]; then
+        echo "VESPA_CONFIGSERVERS must be set with '-e VESPA_CONFIGSERVERS=<comma separated list of config servers>' argument to docker."
         exit 1
     fi
     case $1 in
         configserver)
             /opt/vespa/bin/vespa-start-configserver
+            /opt/vespa/bin/vespa-start-services
             ;;
         services)
             /opt/vespa/bin/vespa-start-services
