@@ -6,6 +6,6 @@ RUN yum-config-manager --add-repo https://copr.fedorainfracloud.org/coprs/g/vesp
 
 ADD include/start-container.sh /usr/local/bin/start-container.sh 
 
-RUN yum install -y vespa-6.136.2
+RUN yum install -y vespa-6.139.24
 
 ENTRYPOINT ["/usr/local/bin/start-container.sh"]
