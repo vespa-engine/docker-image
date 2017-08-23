@@ -8,6 +8,9 @@ if [ $# -gt 1 ]; then
     exit 1
 fi
 
+# Always set the hostname to the FQDN name
+hostname $(hostname -f)
+
 if [ -n "$1" ]; then
     if [ -z "$VESPA_CONFIGSERVERS" ]; then
         echo "VESPA_CONFIGSERVERS must be set with '-e VESPA_CONFIGSERVERS=<comma separated list of config servers>' argument to docker."
