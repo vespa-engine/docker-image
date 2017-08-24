@@ -8,8 +8,8 @@ if [ $# -gt 1 ]; then
     exit 1
 fi
 
-# Always set the hostname to the FQDN name
-hostname $(hostname -f)
+# Always set the hostname to the FQDN name if available
+hostname $(hostname -f) || true
 
 if [ -n "$1" ]; then
     if [ -z "$VESPA_CONFIGSERVERS" ]; then
