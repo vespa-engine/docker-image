@@ -11,6 +11,9 @@ fi
 # Always set the hostname to the FQDN name if available
 hostname $(hostname -f) || true
 
+# Always make sure vespa:vespa owns what is in /opt/vespa
+chown -R vespa:vespa /opt/vespa
+
 if [ -n "$1" ]; then
     if [ -z "$VESPA_CONFIGSERVERS" ]; then
         echo "VESPA_CONFIGSERVERS must be set with '-e VESPA_CONFIGSERVERS=<comma separated list of config servers>' argument to docker."
