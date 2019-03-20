@@ -22,7 +22,6 @@ if [ -n "$1" ]; then
     case $1 in
         configserver)
             /opt/vespa/bin/vespa-start-configserver
-            /opt/vespa/bin/vespa-start-services
             ;;
         services)
             /opt/vespa/bin/vespa-start-services
