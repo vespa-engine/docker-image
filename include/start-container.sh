@@ -14,8 +14,6 @@ hostname $(hostname -f) || true
 # Always make sure vespa:vespa owns what is in /opt/vespa
 chown -R vespa:vespa /opt/vespa
 
-export VESPA_HOME=/opt/vespa
-
 
 # BEGIN environment bootstrap section
 # Do not edit between here and END as this section should stay identical in all scripts
