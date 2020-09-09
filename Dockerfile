@@ -12,4 +12,9 @@ ADD include/start-container.sh /usr/local/bin/start-container.sh
 RUN yum install -y vespa && \
 	yum clean all
 
+RUN yum -y install gcc-c++ python3-devel && \
+    pip3 install --upgrade pip && \
+    python3 -m pip install tensorflow==1.15.3 tf2onnx && \
+    yum clean all
+
 ENTRYPOINT ["/usr/local/bin/start-container.sh"]
