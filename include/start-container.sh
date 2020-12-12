@@ -32,7 +32,9 @@ if [ -n "$1" ]; then
             ;;
     esac
 else
-    export VESPA_CONFIGSERVERS=$(hostname)
+    if [ -z "$VESPA_CONFIGSERVERS" ]; then
+        export VESPA_CONFIGSERVERS=$(hostname)
+    fi
     /opt/vespa/bin/vespa-start-configserver
     /opt/vespa/bin/vespa-start-services
 fi
