@@ -14,6 +14,13 @@ hostname $(hostname -f) || true
 # Always make sure vespa:vespa owns what is in /opt/vespa
 chown -R vespa:vespa /opt/vespa
 
+trap cleanup TERM INT
+
+cleanup() {
+    /opt/vespa/bin/vespa-stop-services
+    exit $?
+}
+
 if [ -n "$1" ]; then
     if [ -z "$VESPA_CONFIGSERVERS" ]; then
         echo "VESPA_CONFIGSERVERS must be set with '-e VESPA_CONFIGSERVERS=<comma separated list of config servers>' argument to docker."
@@ -21,6 +28,10 @@ if [ -n "$1" ]; then
     fi
     case $1 in
         configserver)
+            cleanup() {
+                /opt/vespa/bin/vespa-stop-configserver
+                exit $?
+            }
             /opt/vespa/bin/vespa-start-configserver
             ;;
         services)
