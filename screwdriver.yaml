@@ -31,16 +31,23 @@ jobs:
       - install-deps: |
           yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
           yum install -y docker-ce docker-ce-cli containerd.io
+          docker system info
 
       - build: |
-          VESPA_VERSION=1.2.3
-          docker build --tag docker.io/vespaengine/vespa:$VESPA_VERSION --tag docker.io/vespaengine/vespa:latest .
+          VESPA_VERSION=$(meta get vespa.version)
+          if [[ -n $VESPA_VERSION ]]; then
+            docker build --build-arg VESPA_VERSION=$VESPA_VERSION --tag docker.io/vespaengine/vespa:$VESPA_VERSION --tag docker.io/vespaengine/vespa:latest .
+          fi
+
       - publish: |
+          if [[ -n $VESPA_VERSION ]]; then
+            set +x
+            docker login --username aressem --password $(DOCKER_HUB_DEPLOY_KEY)
+            set -x
 
-          docker system info
-          set +x
-          #docker login --username aressem --password $(DOCKER_HUB_DEPLOY_KEY)
-          set -x
-
+            docker push docker.io/vespaengine/vespa:$VESPA_VERSION
+            docker push docker.io/vespaengine/vespa:latest
+          fi
       - teardown-inspect: |
+          docker image ls
           df -h
