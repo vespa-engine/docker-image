@@ -35,12 +35,12 @@ jobs:
 
       - build: |
           VESPA_VERSION=$(meta get vespa.version)
-          if [[ -n $VESPA_VERSION ]]; then
+          if [[ $VESPA_VERSION != null ]]; then
             docker build --build-arg VESPA_VERSION=$VESPA_VERSION --tag docker.io/vespaengine/vespa:$VESPA_VERSION --tag docker.io/vespaengine/vespa:latest .
           fi
 
       - publish: |
-          if [[ -n $VESPA_VERSION ]]; then
+          if [[ $VESPA_VERSION != null ]]; then
             set +x
             docker login --username aressem --password $(DOCKER_HUB_DEPLOY_KEY)
             set -x
