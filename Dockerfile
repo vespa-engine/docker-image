@@ -1,6 +1,8 @@
 # Copyright 2017 Yahoo Holdings. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
 FROM centos:7
 
+ARG VESPA_VERSION
+
 RUN yum-config-manager --add-repo https://copr.fedorainfracloud.org/coprs/g/vespa/vespa/repo/epel-7/group_vespa-vespa-epel-7.repo && \
     yum -y install epel-release && \
     yum -y install centos-release-scl && \
@@ -9,7 +11,7 @@ RUN yum-config-manager --add-repo https://copr.fedorainfracloud.org/coprs/g/vesp
 
 ADD include/start-container.sh /usr/local/bin/start-container.sh
 
-RUN yum install -y vespa && \
+RUN yum install -y vespa-$VESPA_VERSION && \
 	yum clean all
 
 RUN yum -y install gcc-c++ python3-devel && \
