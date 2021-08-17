@@ -32,6 +32,9 @@ jobs:
           yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
           yum install -y docker-ce docker-ce-cli containerd.io
 
+      - build: |
+          VESPA_VERSION=1.2.3
+          docker build --tag docker.io/vespaengine/vespa:$VESPA_VERSION --tag docker.io/vespaengine/vespa:latest .
       - publish: |
 
           docker system info
