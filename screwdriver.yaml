@@ -2,7 +2,7 @@
 jobs:
   publish:
     requires: [~pr, ~commit]
-    image: vespaengine/vespa-build-centos7:current
+    image: vespaengine/vespa-build-centos7:latest
     secrets:
       - DOCKER_HUB_DEPLOY_KEY
 
