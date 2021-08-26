@@ -42,7 +42,7 @@ jobs:
       - publish: |
           if [[ $VESPA_VERSION != null ]]; then
             set +x
-            docker login --username aressem --password $(DOCKER_HUB_DEPLOY_KEY)
+            docker login --username aressem --password "$DOCKER_HUB_DEPLOY_KEY"
             set -x
 
             docker push docker.io/vespaengine/vespa:$VESPA_VERSION
