@@ -17,7 +17,6 @@ jobs:
 
     environment:
       USER_SHELL_BIN: bash
-      DOCKER_HOST: 'localhost:2375'
 
     steps:
       - inspect: |
