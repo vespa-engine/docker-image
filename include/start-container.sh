@@ -50,5 +50,5 @@ else
     /opt/vespa/bin/vespa-start-services
 fi
 
-tail -f /dev/null &
+sleep infinity &
 wait
