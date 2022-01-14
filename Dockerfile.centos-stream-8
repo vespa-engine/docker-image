@@ -1,0 +1,27 @@
+# Copyright 2017 Yahoo Holdings. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+FROM quay.io/centos/centos:stream8
+
+ARG VESPA_VERSION
+
+ADD include/start-container.sh /usr/local/bin/start-container.sh
+
+RUN dnf -y copr enable @vespa/vespa centos-stream-8 && \
+    dnf -y install epel-release && \
+    dnf -y install --enablerepo=powertools \
+      bind-utils \
+      git \
+      hostname \
+      iputils \
+      net-tools \
+      procps-ng \
+      sudo \
+      vespa-$VESPA_VERSION && \
+    dnf clean all
+
+RUN dnf -y install gcc-c++ python3-devel && \
+    pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir tf2onnx && \
+    dnf -y remove gcc-c++ python3-devel && \
+    dnf clean all
+
+ENTRYPOINT ["/usr/local/bin/start-container.sh"]
