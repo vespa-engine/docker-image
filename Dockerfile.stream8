@@ -17,10 +17,4 @@ RUN dnf config-manager --add-repo https://copr.fedorainfracloud.org/coprs/g/vesp
       vespa-$VESPA_VERSION && \
     dnf clean all
 
-RUN dnf -y install --setopt=skip_missing_names_on_install=False gcc-c++ python3-devel && \
-    pip3 install --no-cache-dir --upgrade pip && \
-    pip3 install --no-cache-dir tf2onnx && \
-    dnf -y remove gcc-c++ python3-devel && \
-    dnf clean all
-
 ENTRYPOINT ["/usr/local/bin/start-container.sh"]
