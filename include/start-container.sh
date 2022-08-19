@@ -34,8 +34,17 @@ if [ -n "$1" ]; then
         services)
             /opt/vespa/bin/vespa-start-services
             ;;
+        services,configserver | configserver,services)
+            cleanup() {
+                /opt/vespa/bin/vespa-stop-configserver
+                /opt/vespa/bin/vespa-stop-services
+                exit $?
+            }
+            /opt/vespa/bin/vespa-start-configserver
+            /opt/vespa/bin/vespa-start-services
+            ;;
         *)
-            echo "Allowed arguments to entrypoint are {configserver,services}."
+            echo 'Allowed arguments to entrypoint are "configserver", "services" or "configserver,services".'
             exit 1
             ;;
     esac
