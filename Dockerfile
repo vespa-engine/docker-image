@@ -12,7 +12,7 @@ RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
     dnf -y install epel-release && \
     dnf -y install \
       bind-utils \
-      git \
+      git-core \
       net-tools \
       sudo \
       vespa-$VESPA_VERSION && \
