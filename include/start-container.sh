@@ -56,5 +56,10 @@ else
     /opt/vespa/bin/vespa-start-services
 fi
 
-sleep infinity &
-wait
+if [ "$VESPA_LOG_STDOUT" = "true" ]; then
+	FORMAT="${VESPA_LOG_FORMAT:-vespa}"
+	/opt/vespa/bin/vespa-logfmt --follow --format "$FORMAT" ${VESPA_LOGFMT_ARGUMENTS}
+else
+	sleep infinity &
+	wait
+fi
