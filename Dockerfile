@@ -19,4 +19,11 @@ RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
     dnf clean all && \
     rm -rf /var/cache/dnf
 
+# Temporarily work around too old OpenJDK packages for CentOS Stream 8
+RUN dnf upgrade -y --nogpgcheck --disablerepo='*' --repofrompath alma-8-latest,https://repo.almalinux.org/almalinux/8/AppStream/$(arch)/os \
+      $(rpm -qa --qf '%{NAME}\n' java-* | xargs) && \
+    alternatives --set java java-17-openjdk.$(arch) && \
+    alternatives --set javac java-17-openjdk.$(arch) && \
+    dnf clean all --repofrompath alma-8-latest,https://repo.almalinux.org/almalinux/8/AppStream/$(arch)/os
+
 ENTRYPOINT ["/usr/local/bin/start-container.sh"]
