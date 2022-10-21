@@ -6,6 +6,9 @@ ARG VESPA_VERSION
 
 ADD include/start-container.sh /usr/local/bin/start-container.sh
 
+RUN groupadd -g 1000 vespa && \
+    useradd -u 1000 -g vespa -d /opt/vespa -s /sbin/nologin vespa
+
 RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
     dnf config-manager --add-repo https://copr.fedorainfracloud.org/coprs/g/vespa/vespa/repo/centos-stream-8/group_vespa-vespa-centos-stream-8.repo && \
     dnf config-manager --enable powertools && \
