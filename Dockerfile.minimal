@@ -80,13 +80,27 @@ RUN mkdir -p $ROOTFS_INSTALL_DIR/run/lock && \
 
 # Build the image
 FROM scratch
+ARG VESPA_VERSION
+ARG IMAGE_GIT_REF="HEAD"
+
 COPY --from=build /tmp_install /
 ADD include/start-container.sh /opt/vespa/bin/start-container.sh
-ENV PATH="${PATH}:/opt/vespa/bin" VESPA_HOME="/opt/vespa"
+
+ENV PATH="/opt/vespa/bin:/opt/vespa-deps/bin:${PATH}" \
+    VESPA_HOME="/opt/vespa"
 
 USER vespa
 
-# Not yet
-#LABEL <labels>
+LABEL org.opencontainers.image.authors="Vespa (https://vespa.ai)" \
+      org.opencontainers.image.url="https://hub.docker.com/r/vespaengine/vespa" \
+      org.opencontainers.image.documentation="https://docs.vespa.ai" \
+      org.opencontainers.image.source="https://github.com/vespa-engine/docker-image" \
+      org.opencontainers.image.version="$VESPA_VERSION" \
+      org.opencontainers.image.revision="$IMAGE_GIT_REF" \
+      org.opencontainers.image.vendor="Yahoo" \
+      org.opencontainers.image.licenses="Apache License 2.0" \
+      org.opencontainers.image.title="Vespa - The open big data serving engine" \
+      org.opencontainers.image.description="Easily serve your big data - generate responses in milliseconds at any scale and with any traffic volume. Read more at the Vespa project https://vespa.ai" \
+      org.opencontainers.image.base.name="scratch"
 
 ENTRYPOINT ["/opt/vespa/bin/start-container.sh"]
