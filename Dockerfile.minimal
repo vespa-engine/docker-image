@@ -1,0 +1,106 @@
+# Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+FROM quay.io/centos/centos:stream8 AS build
+
+ARG VESPA_VERSION
+ARG ROOTFS_INSTALL_DIR=/tmp_install
+
+# Add vespa user before installing the Vespa RPMs to get a fixed UID/GID
+RUN groupadd -g 1000 vespa && \
+    useradd -u 1000 -g vespa -d /opt/vespa -s /sbin/nologin vespa && \
+    mkdir -p $ROOTFS_INSTALL_DIR/etc && \
+    cp -a /etc/passwd /etc/group /etc/shadow $ROOTFS_INSTALL_DIR/etc
+
+# Install packages required to install Vespa RPMs
+RUN dnf \
+      --assumeyes \
+      install \
+        dnf-plugins-core \
+        epel-release && \
+    dnf config-manager \
+      --add-repo https://copr.fedorainfracloud.org/coprs/g/vespa/vespa/repo/centos-stream-8/group_vespa-vespa-centos-stream-8.repo && \
+    dnf config-manager \
+      --enable powertools
+
+# Install Vespa with dependencies into ROOTFS_INSTALL_DIR
+RUN dnf \
+      --installroot=$ROOTFS_INSTALL_DIR \
+      --releasever=8 \
+      --setopt=tsflags=nodocs \
+      --setopt=install_weak_deps=0 \
+      --assumeyes \
+      install \
+        bind-utils \
+        curl \
+        iputils \
+        net-tools \
+        vespa-$VESPA_VERSION
+
+# Remove stuff that is not needed
+RUN (find $ROOTFS_INSTALL_DIR/usr -name "*gdb*"    | xargs rm -rf) && \
+    (find $ROOTFS_INSTALL_DIR/usr -name "*guile*"  | xargs rm -rf) && \
+    (find $ROOTFS_INSTALL_DIR/usr -name "*python*" | xargs rm -rf) && \
+    rm -rf $ROOTFS_INSTALL_DIR/boot && \
+    rm -rf $ROOTFS_INSTALL_DIR/etc/dnf && \
+    rm -rf $ROOTFS_INSTALL_DIR/etc/rpm && \
+    rm -rf $ROOTFS_INSTALL_DIR/etc/systemd && \
+    rm -rf $ROOTFS_INSTALL_DIR/etc/yum* && \
+    rm -rf $ROOTFS_INSTALL_DIR/run/* && \
+    rm -rf $ROOTFS_INSTALL_DIR/tmp/* && \
+    rm -rf $ROOTFS_INSTALL_DIR/usr/bin/fc-* && \
+    rm -rf $ROOTFS_INSTALL_DIR/usr/bin/dbus* && \
+    rm -rf $ROOTFS_INSTALL_DIR/usr/bin/systemd* && \
+    rm -rf $ROOTFS_INSTALL_DIR/usr/games && \
+    rm -rf $ROOTFS_INSTALL_DIR/usr/include && \
+    rm -rf $ROOTFS_INSTALL_DIR/usr/local && \
+    rm -rf $ROOTFS_INSTALL_DIR/usr/lib/rpm && \
+    rm -rf $ROOTFS_INSTALL_DIR/usr/lib/systemd && \
+    rm -rf $ROOTFS_INSTALL_DIR/usr/lib64/nss/unsupported-tools && \
+    rm -rf $ROOTFS_INSTALL_DIR/usr/lib64/security && \
+    rm -rf $ROOTFS_INSTALL_DIR/usr/share/alsa && \
+    rm -rf $ROOTFS_INSTALL_DIR/usr/share/cmake && \
+    rm -rf $ROOTFS_INSTALL_DIR/usr/share/cracklib && \
+    rm -rf $ROOTFS_INSTALL_DIR/usr/share/fonts && \
+    rm -rf $ROOTFS_INSTALL_DIR/usr/share/guile && \
+    rm -rf $ROOTFS_INSTALL_DIR/usr/share/icons && \
+    rm -rf $ROOTFS_INSTALL_DIR/usr/share/licenses && \
+    rm -rf $ROOTFS_INSTALL_DIR/usr/share/X11 && \
+    rm -rf $ROOTFS_INSTALL_DIR/usr/share/zsh && \
+    rm -rf $ROOTFS_INSTALL_DIR/usr/src && \
+    rm -rf $ROOTFS_INSTALL_DIR/var/cache/* && \
+    rm -rf $ROOTFS_INSTALL_DIR/var/lib/dnf && \
+    rm -rf $ROOTFS_INSTALL_DIR/var/lib/rpm && \
+    rm -rf $ROOTFS_INSTALL_DIR/var/log/* && \
+    find $ROOTFS_INSTALL_DIR/usr/share/zoneinfo -mindepth 1 -maxdepth 1 ! -name UTC -exec rm -rf {} \; && \
+    find $ROOTFS_INSTALL_DIR/usr/lib/locale -mindepth 1 -maxdepth 1 ! -name "C.utf8" -a ! -name "en_US*" -exec rm -rf {} \;
+
+# Reset and configure
+RUN mkdir -p $ROOTFS_INSTALL_DIR/run/lock && \
+    chroot $ROOTFS_INSTALL_DIR truncate --size 0 /etc/machine-id && \
+    echo 'LANG=C.utf8' > $ROOTFS_INSTALL_DIR/etc/locale.conf
+
+# Build the image
+FROM scratch
+ARG VESPA_VERSION
+ARG IMAGE_GIT_REF="HEAD"
+
+COPY --from=build /tmp_install /
+ADD include/start-container.sh /opt/vespa/bin/start-container.sh
+
+ENV PATH="/opt/vespa/bin:/opt/vespa-deps/bin:${PATH}" \
+    VESPA_HOME="/opt/vespa"
+
+USER vespa
+
+LABEL org.opencontainers.image.authors="Vespa (https://vespa.ai)" \
+      org.opencontainers.image.url="https://hub.docker.com/r/vespaengine/vespa" \
+      org.opencontainers.image.documentation="https://docs.vespa.ai" \
+      org.opencontainers.image.source="https://github.com/vespa-engine/docker-image" \
+      org.opencontainers.image.version="$VESPA_VERSION" \
+      org.opencontainers.image.revision="$IMAGE_GIT_REF" \
+      org.opencontainers.image.vendor="Yahoo" \
+      org.opencontainers.image.licenses="Apache License 2.0" \
+      org.opencontainers.image.title="Vespa - The open big data serving engine" \
+      org.opencontainers.image.description="Easily serve your big data - generate responses in milliseconds at any scale and with any traffic volume. Read more at the Vespa project https://vespa.ai" \
+      org.opencontainers.image.base.name="scratch"
+
+ENTRYPOINT ["/opt/vespa/bin/start-container.sh"]
