@@ -38,4 +38,9 @@ LABEL org.opencontainers.image.authors="Vespa (https://vespa.ai)" \
       org.opencontainers.image.vendor="Yahoo" \
       org.opencontainers.image.version="$VESPA_VERSION"
 
+ENV VESPA_LOG_STDOUT="true"
+ENV VESPA_LOG_FORMAT="vespa"
+
+USER vespa
+
 ENTRYPOINT ["/usr/local/bin/start-container.sh"]
