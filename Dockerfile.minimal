@@ -86,7 +86,9 @@ COPY --from=build /tmp_install /
 ADD include/start-container.sh /opt/vespa/bin/start-container.sh
 
 ENV PATH="/opt/vespa/bin:/opt/vespa-deps/bin:${PATH}" \
-    VESPA_HOME="/opt/vespa"
+    VESPA_HOME="/opt/vespa" \
+    VESPA_LOG_STDOUT="true" \
+    VESPA_LOG_FORMAT="vespa"
 
 USER vespa
 
