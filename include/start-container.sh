@@ -8,8 +8,18 @@ if [ $# -gt 1 ]; then
     exit 1
 fi
 
-# Always set the hostname to the FQDN name if available
-hostname $(hostname -f) || true
+# Set the hostname to the FQDN name if possible
+oldhn=$(hostname)
+fullhn=$(hostname -f)
+if [ "${oldhn}" != "${fullhn}" ]; then
+    myuid=$(id -u)
+    if [ "${myuid}" = 0 ]; then
+        echo "WARNING - trying to change hostname '${oldhn}' -> '${fullhn}'"
+        hostname "$fullhn" || true
+    else
+        echo "WARNING - want to change hostname '${oldhn}' -> '${fullhn}' (to avoid this warning, change your setup)"
+    fi
+fi
 
 trap cleanup TERM INT
 
