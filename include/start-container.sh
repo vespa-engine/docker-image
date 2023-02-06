@@ -68,7 +68,8 @@ fi
 
 if [ "$VESPA_LOG_STDOUT" = "true" ]; then
 	FORMAT="${VESPA_LOG_FORMAT:-vespa}"
-	/opt/vespa/bin/vespa-logfmt --follow --format "$FORMAT" ${VESPA_LOGFMT_ARGUMENTS}
+	/opt/vespa/bin/vespa-logfmt --follow --format "$FORMAT" ${VESPA_LOGFMT_ARGUMENTS} &
+	wait
 else
 	sleep infinity &
 	wait
