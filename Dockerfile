@@ -41,6 +41,8 @@ LABEL org.opencontainers.image.authors="Vespa (https://vespa.ai)" \
 
 ENV VESPA_LOG_STDOUT="true"
 ENV VESPA_LOG_FORMAT="vespa"
+ENV VESPA_CLI_HOME=/tmp/.vespa
+ENV VESPA_CLI_CACHE_DIR=/tmp/.cache/vespa
 
 USER vespa
 
