@@ -57,6 +57,7 @@ LABEL org.opencontainers.image.authors="Vespa (https://vespa.ai)" \
       org.opencontainers.image.vendor="Yahoo" \
       org.opencontainers.image.version="$VESPA_VERSION"
 
+ENV PATH="/opt/vespa/bin:/opt/vespa-deps/bin:${PATH}"
 ENV VESPA_LOG_STDOUT="true"
 ENV VESPA_LOG_FORMAT="vespa"
 ENV VESPA_CLI_HOME=/tmp/.vespa
