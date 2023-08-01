@@ -10,6 +10,7 @@ RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
       epel-release && \
     dnf config-manager --add-repo https://copr.fedorainfracloud.org/coprs/g/vespa/vespa/repo/epel-9/group_vespa-vespa-epel-9.repo && \
     dnf config-manager --enable crb && \
+    dnf remove -y dnf-plugins-core && \
     dnf clean all && \
     rm -rf /var/cache/dnf
 
@@ -23,6 +24,7 @@ RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
       epel-release && \
     dnf config-manager --add-repo https://copr.fedorainfracloud.org/coprs/g/vespa/vespa/repo/centos-stream-8/group_vespa-vespa-centos-stream-8.repo && \
     dnf config-manager --enable powertools && \
+    dnf remove -y dnf-plugins-core && \
     dnf clean all && \
     rm -rf /var/cache/dnf
 
@@ -37,12 +39,7 @@ ADD include/start-container.sh /usr/local/bin/start-container.sh
 RUN groupadd -g 1000 vespa && \
     useradd -u 1000 -g vespa -d /opt/vespa -s /sbin/nologin vespa
 
-RUN dnf -y install \
-      bind-utils \
-      git-core \
-      net-tools \
-      sudo \
-      vespa-$VESPA_VERSION && \
+RUN dnf -y install vespa-$VESPA_VERSION && \
     dnf clean all && \
     rm -rf /var/cache/dnf
 
