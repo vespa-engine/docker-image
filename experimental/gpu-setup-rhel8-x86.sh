@@ -44,11 +44,11 @@ checkprun podman build -t vespaengine/with-cuda -f Dockerfile.with-cuda .
 
 rundnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo
 rundnf config-manager --add-repo https://nvidia.github.io/libnvidia-container/rhel8.6/libnvidia-container.repo
-rundnf module install nvidia-driver:530
+rundnf module install nvidia-driver:535
 
 checkprun nvidia-modprobe
 
-rundnf install nvidia-container-toolkit-1.13.2
+rundnf install nvidia-container-toolkit-base-1.13.5
 
 makedev() {
 	devname="/dev/$1"
