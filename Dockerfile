@@ -1,6 +1,34 @@
 # Copyright Yahoo. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
 
-ARG VESPA_BASE_IMAGE=el8
+ARG VESPA_BASE_IMAGE=stream8
+
+FROM docker.io/almalinux:8 as el8
+
+RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
+    dnf -y install \
+      dnf-plugins-core \
+      epel-release && \
+    dnf config-manager --add-repo https://copr.fedorainfracloud.org/coprs/g/vespa/vespa/repo/epel-8/group_vespa-vespa-epel-8.repo && \
+    dnf config-manager --enable powertools && \
+    dnf remove -y dnf-plugins-core && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf
+
+LABEL org.opencontainers.image.base.name="quay.io/centos/centos:stream8"
+
+FROM quay.io/centos/centos:stream8 as el8
+
+RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
+    dnf -y install \
+      dnf-plugins-core \
+      epel-release && \
+    dnf config-manager --add-repo https://copr.fedorainfracloud.org/coprs/g/vespa/vespa/repo/epel-8/group_vespa-vespa-epel-8.repo && \
+    dnf config-manager --enable powertools && \
+    dnf remove -y dnf-plugins-core && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf
+
+LABEL org.opencontainers.image.base.name="quay.io/centos/centos:stream8"
 
 FROM docker.io/almalinux:9 as el9
 
@@ -15,20 +43,6 @@ RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
     rm -rf /var/cache/dnf
 
 LABEL org.opencontainers.image.base.name="docker.io/almalinux:9"
-
-FROM quay.io/centos/centos:stream8 as el8
-
-RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
-    dnf -y install \
-      dnf-plugins-core \
-      epel-release && \
-    dnf config-manager --add-repo https://copr.fedorainfracloud.org/coprs/g/vespa/vespa/repo/centos-stream-8/group_vespa-vespa-centos-stream-8.repo && \
-    dnf config-manager --enable powertools && \
-    dnf remove -y dnf-plugins-core && \
-    dnf clean all && \
-    rm -rf /var/cache/dnf
-
-LABEL org.opencontainers.image.base.name="quay.io/centos/centos:stream8"
 
 FROM $VESPA_BASE_IMAGE AS vespa
 
