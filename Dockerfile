@@ -16,7 +16,7 @@ RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
 
 LABEL org.opencontainers.image.base.name="quay.io/centos/centos:stream8"
 
-FROM quay.io/centos/centos:stream8 as el8
+FROM quay.io/centos/centos:stream8 as stream8
 
 RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
     dnf -y install \
