@@ -1,6 +1,6 @@
 # Copyright Vespa.ai. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
 
-ARG VESPA_BASE_IMAGE=stream8
+ARG VESPA_BASE_IMAGE=el8
 
 FROM docker.io/almalinux:8 as el8
 
