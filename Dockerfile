@@ -14,7 +14,7 @@ RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
     dnf clean all && \
     rm -rf /var/cache/dnf
 
-LABEL org.opencontainers.image.base.name="quay.io/centos/centos:stream8"
+LABEL org.opencontainers.image.base.name="docker.io/almalinux:8"
 
 FROM quay.io/centos/centos:stream8 as stream8
 

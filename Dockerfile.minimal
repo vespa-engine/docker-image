@@ -1,5 +1,5 @@
 # Copyright Vespa.ai. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
-FROM quay.io/centos/centos:stream8 AS build
+FROM docker.io/almalinux:8 AS build
 
 ARG VESPA_VERSION
 ARG ROOTFS_INSTALL_DIR=/tmp_install
@@ -17,7 +17,7 @@ RUN dnf \
         dnf-plugins-core \
         epel-release && \
     dnf config-manager \
-      --add-repo https://copr.fedorainfracloud.org/coprs/g/vespa/vespa/repo/centos-stream-8/group_vespa-vespa-centos-stream-8.repo && \
+      --add-repo https://copr.fedorainfracloud.org/coprs/g/vespa/vespa/repo/centos-stream-8/group_vespa-vespa-epel-8.repo && \
     dnf config-manager \
       --enable powertools
 
