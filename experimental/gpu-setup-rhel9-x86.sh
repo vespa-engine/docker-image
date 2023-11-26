@@ -35,8 +35,7 @@ FROM docker.io/vespaengine/vespa:latest
 USER root
 RUN dnf -y install 'dnf-command(config-manager)'
 RUN dnf -y config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo
-RUN dnf -y install libcudnn8-8.9.4.25-1.cuda11.8
-RUN dnf -y install vespa-onnxruntime-cuda
+RUN dnf -y install $(rpm -q --queryformat '%{NAME}-cuda-%{VERSION}' vespa-onnxruntime)
 USER vespa
 EOF
 
