@@ -53,8 +53,11 @@ ADD include/start-container.sh /usr/local/bin/start-container.sh
 RUN groupadd -g 1000 vespa && \
     useradd -u 1000 -g vespa -d /opt/vespa -s /sbin/nologin vespa
 
-RUN dnf -y install vespa-$VESPA_VERSION && \
+RUN  --mount=type=bind,target=/files,source=.,ro \
+    if [[ -d /files/rpms ]]; then echo -e "[vespa-rpms-local]\nname=Local Vespa RPMs\nbaseurl=file:///files/rpms/\nenabled=1\ngpgcheck=0" > /etc/yum.repos.d/vespa-rpms-local.repo; fi && \
+    dnf -y install vespa-$VESPA_VERSION && \
     dnf clean all && \
+    rm -f /etc/yum.repos.d/vespa-rpms-local.repo && \
     rm -rf /var/cache/dnf
 
 LABEL org.opencontainers.image.authors="Vespa (https://vespa.ai)" \
