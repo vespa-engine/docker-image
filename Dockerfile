@@ -68,7 +68,7 @@ LABEL org.opencontainers.image.authors="Vespa (https://vespa.ai)" \
       org.opencontainers.image.source="https://github.com/vespa-engine/docker-image" \
       org.opencontainers.image.title="Vespa - The open big data serving engine" \
       org.opencontainers.image.url="https://hub.docker.com/r/vespaengine/vespa" \
-      org.opencontainers.image.vendor="Yahoo" \
+      org.opencontainers.image.vendor="Vespa.ai" \
       org.opencontainers.image.version="$VESPA_VERSION"
 
 ENV PATH="/opt/vespa/bin:/opt/vespa-deps/bin:${PATH}"
