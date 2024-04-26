@@ -47,6 +47,7 @@ LABEL org.opencontainers.image.base.name="docker.io/almalinux:9"
 FROM $VESPA_BASE_IMAGE AS vespa
 
 ARG VESPA_VERSION
+ARG SOURCE_GITREF=v$VESPA_VERSION
 
 ADD include/start-container.sh /usr/local/bin/start-container.sh
 
@@ -64,7 +65,7 @@ LABEL org.opencontainers.image.authors="Vespa (https://vespa.ai)" \
       org.opencontainers.image.description="Easily serve your big data - generate responses in milliseconds at any scale and with any traffic volume. Read more at the Vespa project https://vespa.ai" \
       org.opencontainers.image.documentation="https://docs.vespa.ai" \
       org.opencontainers.image.licenses="Apache License 2.0" \
-      org.opencontainers.image.revision="v$VESPA_VERSION" \
+      org.opencontainers.image.revision="$SOURCE_GITREF" \
       org.opencontainers.image.source="https://github.com/vespa-engine/docker-image" \
       org.opencontainers.image.title="Vespa - The open big data serving engine" \
       org.opencontainers.image.url="https://hub.docker.com/r/vespaengine/vespa" \
