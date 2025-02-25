@@ -2,18 +2,24 @@ name: Mend CLI Scan
 
 on:
   workflow_dispatch:
-    inputs:
-      image:
-        description: 'Image to scan'
-        required: true
-        default: 'docker.io/vespaengine/vespa:8'
-
-env:
-  IMAGE: ${{ inputs.image }}
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
 
 jobs:
   mend:
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - 'docker.io/vespaengine/vespa:8'
+          - 'docker.io/vespaengine/vespa-build-almalinux-8:latest'
+          - 'docker.io/vespaengine/vespa-dev-almalinux-8:latest'
+          - 'docker.io/vespaengine/vespa-build-almalinux-9:latest'
+          - 'docker.io/vespaengine/vespa-dev-almalinux-9:latest'
 
     steps:
     - name: Downloading Mend CLI
@@ -27,4 +33,4 @@ jobs:
         MEND_USER_KEY: ${{secrets.MEND_USER_KEY}}
         MEND_URL: https://saas-eu.mend.io
       run: |
-        mend image "$IMAGE"
+        mend image "${{ matrix.image }}"
