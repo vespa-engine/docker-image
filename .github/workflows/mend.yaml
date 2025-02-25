@@ -22,6 +22,13 @@ jobs:
           - 'docker.io/vespaengine/vespa-dev-almalinux-9:latest'
 
     steps:
+    - name: Free disk space
+      uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be
+      with:
+        large-packages: false
+        docker-images: false
+        swap-storage: false
+
     - name: Downloading Mend CLI
       run: |
         echo Downloading Mend CLI
