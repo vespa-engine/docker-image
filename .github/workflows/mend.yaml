@@ -27,4 +27,4 @@ jobs:
         MEND_USER_KEY: ${{secrets.MEND_USER_KEY}}
         MEND_URL: https://saas-eu.mend.io
       run: |
-        mend image "$IMAGE"
+        mend image --non-interactive --scope "${{github.event.repository.owner.name }}//${{github.event.repository.name}}" "$IMAGE"
