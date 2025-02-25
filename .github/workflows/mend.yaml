@@ -1,0 +1,30 @@
+name: Mend CLI Scan
+
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: 'Image to scan'
+        required: true
+        default: 'docker.io/vespaengine/vespa:8'
+
+env:
+  IMAGE: ${{ inputs.image }}
+
+jobs:
+  mend:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Downloading Mend CLI
+      run: |
+        echo Downloading Mend CLI
+        curl https://downloads.mend.io/cli/linux_amd64/mend -o /usr/local/bin/mend && chmod +x /usr/local/bin/mend
+
+    - name: Mend CLI Scan
+      env:
+        MEND_EMAIL: ${{secrets.MEND_EMAIL}}
+        MEND_USER_KEY: ${{secrets.MEND_USER_KEY}}
+        MEND_URL: https://saas-eu.mend.io
+      run: |
+        mend image "$IMAGE"
