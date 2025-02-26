@@ -39,5 +39,16 @@ jobs:
         MEND_EMAIL: ${{secrets.MEND_EMAIL}}
         MEND_USER_KEY: ${{secrets.MEND_USER_KEY}}
         MEND_URL: https://saas-eu.mend.io
+        IMAGE: ${{ matrix.image }}
       run: |
-        mend image "${{ matrix.image }}"
+        echo "Scanning image ${IMAGE}"
+
+        # Project is everything after the last slash (typically: vespa...:8)
+        MEND_PROJECT=${IMAGE##*/}
+        echo "Project: ${MEND_PROJECT}"
+
+        # Application is everything before the last slash (typically: docker.io/vespaengine)
+        MEND_APPLICATION=${IMAGE%/*}
+        echo "Application: ${MEND_APPLICATION}"
+
+        mend image "${IMAGE}" --scope "Vespa.ai//${MEND_APPLICATION}//${MEND_PROJECT}"
