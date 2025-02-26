@@ -52,3 +52,6 @@ jobs:
         echo "Application: ${MEND_APPLICATION}"
 
         mend image "${IMAGE}" --scope "Vespa.ai//${MEND_APPLICATION}//${MEND_PROJECT}"
+
+        # Show the BOM
+        mend image "${IMAGE}" --scope "Vespa.ai//${MEND_APPLICATION}//${MEND_PROJECT}" --show=bom
