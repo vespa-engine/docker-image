@@ -43,8 +43,9 @@ jobs:
       run: |
         echo "Scanning image ${IMAGE}"
 
-        # Project is everything after the last slash (typically: vespa...:8)
+        # Project is everything after the last slash, excluding the tag
         MEND_PROJECT=${IMAGE##*/}
+        MEND_PROJECT=${MEND_PROJECT%:*}
         echo "Project: ${MEND_PROJECT}"
 
         # Application is everything before the last slash (typically: docker.io/vespaengine)
