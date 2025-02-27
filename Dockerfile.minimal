@@ -1,5 +1,5 @@
 # Copyright Vespa.ai. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
-FROM docker.io/almalinux:8 AS build
+FROM docker.io/almalinux:9 AS build
 
 ARG VESPA_VERSION
 ARG ROOTFS_INSTALL_DIR=/tmp_install
