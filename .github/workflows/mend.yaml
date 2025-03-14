@@ -52,4 +52,4 @@ jobs:
         MEND_APPLICATION=${IMAGE%/*}
         echo "Application: ${MEND_APPLICATION}"
 
-        mend image "${IMAGE}" --scope "Vespa.ai//${MEND_APPLICATION}//${MEND_PROJECT}"
+        mend image "${IMAGE}" --force-reachability --scope "Vespa.ai//${MEND_APPLICATION}//${MEND_PROJECT}"
