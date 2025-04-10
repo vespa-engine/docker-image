@@ -2,7 +2,7 @@
 
 ARG VESPA_BASE_IMAGE=el8
 
-FROM docker.io/almalinux:8 as el8
+FROM docker.io/almalinux:9 as el8
 
 RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
     dnf -y install \
