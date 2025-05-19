@@ -3,6 +3,9 @@
 
 set -e
 
+/opt/vespa/bin/verify-container-env
+[ $? -eq 0 ] || exit 1
+
 if [ $# -gt 1 ]; then
     echo "Allowed arguments to entrypoint are {configserver,services}."
     exit 1
