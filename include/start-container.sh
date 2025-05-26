@@ -3,9 +3,6 @@
 
 set -e
 
-/opt/vespa/bin/verify-container-env
-[ $? -eq 0 ] || exit 1
-
 if [ $# -gt 1 ]; then
     echo "Allowed arguments to entrypoint are {configserver,services}."
     exit 1
@@ -16,6 +13,11 @@ trap cleanup TERM INT
 cleanup() {
     /opt/vespa/bin/vespa-stop-services
     exit $?
+}
+
+verify_container_env() {
+    /opt/vespa/bin/verify-container-env
+    [ $? -eq 0 ] || exit 1
 }
 
 if [ -n "$1" ]; then
@@ -40,6 +42,7 @@ if [ -n "$1" ]; then
                 /opt/vespa/bin/vespa-stop-services
                 exit $?
             }
+            verify_container_env
             /opt/vespa/bin/vespa-start-configserver
             /opt/vespa/bin/vespa-start-services
             ;;
@@ -52,6 +55,9 @@ else
     if [ -z "$VESPA_CONFIGSERVERS" ]; then
         export VESPA_CONFIGSERVERS=$(hostname)
     fi
+    
+    verify_container_env
+
     /opt/vespa/bin/vespa-start-configserver
     /opt/vespa/bin/vespa-start-services
 fi
