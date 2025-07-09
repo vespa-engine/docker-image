@@ -5,6 +5,7 @@ ARG VESPA_BASE_IMAGE=el8
 FROM docker.io/almalinux:8 as el8
 
 RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
+    echo "fastestmirror=0"         >> /etc/dnf/dnf.conf && \
     dnf -y install \
       dnf-plugins-core \
       epel-release && \
@@ -19,6 +20,7 @@ LABEL org.opencontainers.image.base.name="docker.io/almalinux:8"
 FROM docker.io/almalinux:9 as el9
 
 RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
+    echo "fastestmirror=0"         >> /etc/dnf/dnf.conf && \
     dnf -y install \
       dnf-plugins-core \
       epel-release && \
