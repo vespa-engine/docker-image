@@ -44,7 +44,7 @@ checkprun podman build -t vespaengine/with-cuda -f Dockerfile.with-cuda .
 
 rundnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo
 rundnf config-manager --add-repo https://nvidia.github.io/libnvidia-container/rhel8.6/libnvidia-container.repo
-rundnf module install nvidia-driver:535
+rundnf module install nvidia-driver:580-dkms
 
 checkprun nvidia-modprobe
 
@@ -74,7 +74,7 @@ makedev() {
 	fi
 }
 
-frontend_major=$(awk '$2 == "nvidia-frontend" { print $1 }' < /proc/devices)
+frontend_major=$(awk '$2 == "nvidia-frontend" || $2 == "nvidia" { print $1 }' < /proc/devices)
 if [ "${frontend_major}" = "" ]; then
 	echo "FAILED: missing 'nvidia-frontend' in /proc/devices"
 	exit 1
@@ -99,6 +99,6 @@ privrun chmod 644 /etc/cdi/nvidia.json
 
 podname=vespa-test-$$-tmp
 checkprun podman run --device nvidia.com/gpu=all --detach --name ${podname} --hostname ${podname} vespaengine/with-cuda
-privrun podman exec -it ${podname} sh -c 'cd /tmp && set -x && vespa clone simple-semantic-search s-app && vespa deploy --wait 300 s-app && vespa-logfmt -N | grep -i gpu'
+privrun podman exec -it ${podname} sh -c 'cd /tmp && set -x && vespa clone examples/model-exporting/app s-app && vespa deploy --wait 300 s-app && vespa-logfmt -N | grep -9 -i gpu'
 privrun podman stop ${podname}
 checkprun podman rm ${podname}
