@@ -29,7 +29,8 @@ if [ "$selinux_mode" = "Enforcing" ]; then
 fi
 
 privrun systemctl stop google-cloud-ops-agent || echo ignored google-cloud-ops-agent
-privrun dnf config-manager --set-disabled ciq-sigcloud-next || echo ignored ciq-sigcloud-next
+
+privrun dnf config-manager --set-enabled ciq-sigcloud-next || echo ignored ciq-sigcloud-next
 
 rundnf install podman
 
@@ -44,8 +45,14 @@ EOF
 
 checkprun podman build -t vespaengine/with-cuda -f Dockerfile.with-cuda .
 
-rundnf config-manager --set-enabled crb
 rundnf install epel-release
+rundnf config-manager --set-enabled crb
+
+rundnf install kernel-headers
+rundnf install kernel-devel
+rundnf install dkms
+
+privrun dnf config-manager --set-disabled ciq-sigcloud-next || echo ignored ciq-sigcloud-next
 
 distro=rhel10
 arch=x86_64
