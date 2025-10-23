@@ -28,6 +28,7 @@ if [ "$selinux_mode" = "Enforcing" ]; then
 	checkprun setenforce Permissive
 fi
 
+privrun systemctl stop google-cloud-ops-agent || echo ignored google-cloud-ops-agent
 rundnf install podman
 
 cat >> Dockerfile.with-cuda << 'EOF'
@@ -41,20 +42,36 @@ EOF
 
 checkprun podman build -t vespaengine/with-cuda -f Dockerfile.with-cuda .
 
-rundnf install kernel-devel-matched kernel-headers
 rundnf config-manager --set-enabled crb
 rundnf install epel-release
+
+rundnf install pciutils
+
+kernel_version=$(uname -r)
+
+rundnf install \
+	kernel-core-${kernel_version} \
+	kernel-devel-${kernel_version} \
+	kernel-devel-matched-${kernel_version} \
+	kernel-headers-${kernel_version} \
+	kernel-modules-${kernel_version} \
+	kernel-modules-core-${kernel_version} \
+	kernel-tools-${kernel_version} \
+	kernel-tools-libs-${kernel_version}
+
+rundnf install dkms
 
 distro=rhel9
 arch=x86_64
 rundnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/$distro/$arch/cuda-$distro.repo
-rundnf config-manager --add-repo https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo
 
+privrun systemctl stop google-cloud-ops-agent || echo ignored google-cloud-ops-agent
 rundnf module enable nvidia-driver:580-dkms
 rundnf install cuda-drivers
 
 checkprun nvidia-modprobe
 
+rundnf config-manager --add-repo https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo
 TK_VERSION=1.17.8-1
 rundnf install -y \
 	nvidia-container-toolkit-${TK_VERSION} \
