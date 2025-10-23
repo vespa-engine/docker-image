@@ -29,6 +29,7 @@ if [ "$selinux_mode" = "Enforcing" ]; then
 fi
 
 rundnf install docker
+traceprun systemctl start docker --now
 
 cat >> Dockerfile.with-cuda << 'EOF'
 FROM docker.io/vespaengine/vespa:latest
@@ -53,12 +54,18 @@ checkprun nvidia-modprobe
 
 rundnf config-manager --add-repo https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo
 
-TK_VERSION=1.17.8-1
+TK_VERSION=1.18.0
 rundnf install -y \
 	nvidia-container-toolkit-${TK_VERSION} \
 	nvidia-container-toolkit-base-${TK_VERSION} \
 	libnvidia-container-tools-${TK_VERSION} \
 	libnvidia-container1-${TK_VERSION}
+
+traceprun nvidia-ctk runtime configure --enable-cdi
+traceprun systemctl restart docker
+ls -l /dev/nvidia* || true
+traceprun nvidia-ctk system create-device-nodes
+ls -l /dev/nvidia* || true
 
 makedev() {
 	devname="/dev/$1"
