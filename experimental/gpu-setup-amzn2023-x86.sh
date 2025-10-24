@@ -1,5 +1,8 @@
 #!/bin/sh
 
+distro=amzn2023
+arch=x86_64
+
 PATH=/usr/bin:/usr/sbin:/usr/local/bin:/usr/bin:/usr/local/sbin
 export PATH
 
@@ -31,12 +34,12 @@ fi
 rundnf install docker
 traceprun systemctl start docker --now
 
-cat >> Dockerfile.with-cuda << 'EOF'
+cat >> Dockerfile.with-cuda << EOF
 FROM docker.io/vespaengine/vespa:latest
 USER root
 RUN dnf -y install 'dnf-command(config-manager)'
-RUN dnf -y config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo
-RUN dnf -y install $(rpm -q --queryformat '%{NAME}-cuda-%{VERSION}' vespa-onnxruntime)
+RUN dnf -y config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/${arch}/cuda-rhel8.repo
+RUN dnf -y install \$(rpm -q --queryformat '%{NAME}-cuda-%{VERSION}' vespa-onnxruntime)
 USER vespa
 EOF
 
@@ -44,16 +47,14 @@ checkprun docker build -t vespaengine/with-cuda -f Dockerfile.with-cuda .
 
 rundnf install dkms
 
-distro=amzn2023
-arch=x86_64
 rundnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/$distro/$arch/cuda-$distro.repo
 
+privrun systemctl stop google-cloud-ops-agent || echo ignored google-cloud-ops-agent
 rundnf install nvidia-open
 
 checkprun nvidia-modprobe
 
 rundnf config-manager --add-repo https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo
-
 TK_VERSION=1.18.0
 rundnf install -y \
 	nvidia-container-toolkit-${TK_VERSION} \
@@ -63,9 +64,8 @@ rundnf install -y \
 
 traceprun nvidia-ctk runtime configure --enable-cdi
 traceprun systemctl restart docker
-ls -l /dev/nvidia* || true
 traceprun nvidia-ctk system create-device-nodes
-ls -l /dev/nvidia* || true
+ls -l /dev/nvidia*
 
 makedev() {
 	devname="/dev/$1"
@@ -115,7 +115,10 @@ checkprun nvidia-ctk cdi generate --device-name-strategy=type-index --format=jso
 privrun chmod 644 /etc/cdi/nvidia.json
 
 podname=vespa-test-$$-tmp
-checkprun docker run --gpus all --detach --name ${podname} --hostname ${podname} vespaengine/with-cuda
-privrun docker exec -it ${podname} sh -c 'cd /tmp && set -x && vespa clone examples/model-exporting/app s-app && vespa deploy --wait 300 s-app && vespa-logfmt -N | grep -i gpu'
+checkprun docker run --device nvidia.com/gpu=all --detach --name ${podname} --hostname ${podname} vespaengine/with-cuda
+(cd app && zip -r ../application.zip *)
+privrun docker cp application.zip ${podname}:/tmp
+privrun docker exec -it ${podname} sh -c 'cd /tmp && vespa deploy --wait 300 application.zip && vespa-logfmt -N | grep -i gpu'
 privrun docker stop ${podname}
 checkprun docker rm ${podname}
+rm -f application.zip
