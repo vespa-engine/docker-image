@@ -92,6 +92,7 @@ privrun chmod 644 /etc/cdi/nvidia.json
 
 podname=vespa-test-$$-tmp
 conrun run --device nvidia.com/gpu=all --detach --name ${podname} --hostname ${podname} vespaengine/with-cuda
+rundnf install zip
 (cd app && zip -r ../application.zip *)
 conrun cp application.zip ${podname}:/tmp
 conrun exec -it ${podname} sh -c 'cd /tmp && vespa deploy --wait 300 application.zip; vespa-logfmt -N; vespa-logfmt -N | grep -i gpu'

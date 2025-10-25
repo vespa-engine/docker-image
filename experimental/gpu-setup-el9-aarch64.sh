@@ -22,6 +22,26 @@ checkprun() {
 }
 rundnf() { checkprun dnf -y "$@"; }
 
+disable_selinux() {
+	selinux_mode=$(getenforce)
+	if [ "$selinux_mode" = "Enforcing" ]; then
+		echo "WARNING: selinux mode is $selinux_mode"
+		echo "NOTE: you may need to change this permanently; or add your own handling of selinux"
+		grep '^SELINUX=' /etc/selinux/config /dev/null 2>/dev/null
+		checkprun setenforce Permissive
+	fi
+}
+
+disable_selinux
+privrun systemctl stop google-cloud-ops-agent || echo ignored google-cloud-ops-agent
+
+rundnf config-manager --set-enabled crb
+rundnf install epel-release
+rundnf install pciutils zip
+traceprun lspci
+# available on el9:
+rundnf install podman
+
 if [ -f /usr/bin/docker ]; then
 	conman=docker
 elif [ -f /usr/bin/podman ]; then
@@ -32,16 +52,6 @@ else
 fi
 
 conrun() { checkprun $conman "$@"; }
-
-disable_selinux() {
-	selinux_mode=$(getenforce)
-	if [ "$selinux_mode" = "Enforcing" ]; then
-		echo "WARNING: selinux mode is $selinux_mode"
-		echo "NOTE: you may need to change this permanently; or add your own handling of selinux"
-		grep '^SELINUX=' /etc/selinux/config /dev/null 2>/dev/null
-		checkprun setenforce Permissive
-	fi
-}
 
 find_nvarch() {
 	arch=$(arch)
@@ -66,15 +76,6 @@ RUN dnf -y install $(rpm -q --queryformat '%{NAME}-cuda-%{VERSION}' vespa-onnxru
 USER vespa
 EOF
 }
-
-disable_selinux
-privrun systemctl stop google-cloud-ops-agent || echo ignored google-cloud-ops-agent
-
-rundnf config-manager --set-enabled crb
-rundnf install epel-release
-rundnf install pciutils
-traceprun lspci
-rundnf install podman
 
 # could be useful maybe:
 # kernel_version=$(uname -r)
