@@ -32,15 +32,17 @@ disable_selinux() {
 	fi
 }
 
-disable_selinux
+# useful for GCP, ignore otherwise
 privrun systemctl stop google-cloud-ops-agent || echo ignored google-cloud-ops-agent
 
+# available on el9:
 rundnf config-manager --set-enabled crb
 rundnf install epel-release
-rundnf install pciutils zip
-traceprun lspci
-# available on el9:
 rundnf install podman
+
+disable_selinux
+rundnf install pciutils zip
+traceprun lspci | grep -i nvidia
 
 if [ -f /usr/bin/docker ]; then
 	conman=docker
@@ -81,13 +83,10 @@ EOF
 # kernel_version=$(uname -r)
 # rundnf install kernel-headers-${kernel_version}
 rundnf install dkms
-
 find_nvarch
-rundnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/$distro/$nvarch/cuda-$distro.repo
-
+rundnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/${distro}/${nvarch}/cuda-${distro}.repo
 rundnf module enable nvidia-driver:580-dkms
 rundnf install cuda-drivers
-
 checkprun nvidia-modprobe
 
 rundnf config-manager --add-repo https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo
@@ -105,7 +104,7 @@ privrun mkdir -p /etc/cdi
 checkprun nvidia-ctk cdi generate --device-name-strategy=type-index --format=json --output /etc/cdi/nvidia.json
 privrun chmod 644 /etc/cdi/nvidia.json
 
-traceprun systemctl restart podman
+traceprun systemctl restart $conman
 
 gen_dockerfile
 conrun build -t vespaengine/with-cuda -f Dockerfile.with-cuda .
@@ -121,3 +120,4 @@ conrun stop ${podname}
 conrun rm ${podname}
 rm -f application.zip
 
+exit 0
