@@ -1,5 +1,8 @@
 #!/bin/sh
 
+distro=rhel9
+arch=x86_64
+
 PATH=/usr/bin:/usr/sbin:/usr/local/bin:/usr/bin:/usr/local/sbin
 export PATH
 
@@ -28,32 +31,50 @@ if [ "$selinux_mode" = "Enforcing" ]; then
 	checkprun setenforce Permissive
 fi
 
-rundnf install docker
-traceprun systemctl start docker --now
+privrun systemctl stop google-cloud-ops-agent || echo ignored google-cloud-ops-agent
+rundnf install podman
+traceprun systemctl start podman
 
-cat >> Dockerfile.with-cuda << 'EOF'
+cat >> Dockerfile.with-cuda << EOF
 FROM docker.io/vespaengine/vespa:latest
 USER root
 RUN dnf -y install 'dnf-command(config-manager)'
-RUN dnf -y config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo
-RUN dnf -y install $(rpm -q --queryformat '%{NAME}-cuda-%{VERSION}' vespa-onnxruntime)
+RUN dnf -y config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/${arch}/cuda-rhel8.repo
+RUN dnf -y install \$(rpm -q --queryformat '%{NAME}-cuda-%{VERSION}' vespa-onnxruntime)
 USER vespa
 EOF
 
-checkprun docker build -t vespaengine/with-cuda -f Dockerfile.with-cuda .
+checkprun podman build -t vespaengine/with-cuda -f Dockerfile.with-cuda .
+
+rundnf config-manager --set-enabled crb
+rundnf install epel-release
+
+rundnf install pciutils
+traceprun lspci
+
+kernel_version=$(uname -r)
+
+#rundnf install \
+#	kernel-core-${kernel_version} \
+#	kernel-devel-${kernel_version} \
+#	kernel-devel-matched-${kernel_version} \
+#	kernel-headers-${kernel_version} \
+#	kernel-modules-${kernel_version} \
+#	kernel-modules-core-${kernel_version} \
+#	kernel-tools-${kernel_version} \
+#	kernel-tools-libs-${kernel_version}
 
 rundnf install dkms
 
-distro=amzn2023
-arch=x86_64
 rundnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/$distro/$arch/cuda-$distro.repo
 
-rundnf install nvidia-open
+privrun systemctl stop google-cloud-ops-agent || echo ignored google-cloud-ops-agent
+rundnf module enable nvidia-driver:580-dkms
+rundnf install cuda-drivers
 
 checkprun nvidia-modprobe
 
 rundnf config-manager --add-repo https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo
-
 TK_VERSION=1.18.0
 rundnf install -y \
 	nvidia-container-toolkit-${TK_VERSION} \
@@ -62,10 +83,9 @@ rundnf install -y \
 	libnvidia-container1-${TK_VERSION}
 
 traceprun nvidia-ctk runtime configure --enable-cdi
-traceprun systemctl restart docker
-ls -l /dev/nvidia* || true
+traceprun systemctl restart podman
 traceprun nvidia-ctk system create-device-nodes
-ls -l /dev/nvidia* || true
+ls -l /dev/nvidia*
 
 makedev() {
 	devname="/dev/$1"
@@ -115,7 +135,11 @@ checkprun nvidia-ctk cdi generate --device-name-strategy=type-index --format=jso
 privrun chmod 644 /etc/cdi/nvidia.json
 
 podname=vespa-test-$$-tmp
-checkprun docker run --gpus all --detach --name ${podname} --hostname ${podname} vespaengine/with-cuda
-privrun docker exec -it ${podname} sh -c 'cd /tmp && set -x && vespa clone examples/model-exporting/app s-app && vespa deploy --wait 300 s-app && vespa-logfmt -N | grep -i gpu'
-privrun docker stop ${podname}
-checkprun docker rm ${podname}
+checkprun podman run --device nvidia.com/gpu=all --detach --name ${podname} --hostname ${podname} vespaengine/with-cuda
+(cd app && zip -r ../application.zip *)
+privrun podman cp application.zip ${podname}:/tmp
+rm -f application.zip
+privrun podman exec -it ${podname} sh -c 'cd /tmp && vespa deploy --wait 300 application.zip && vespa-logfmt -N | grep -i gpu'
+traceprun nvidia-smi
+privrun podman stop ${podname}
+checkprun podman rm ${podname}
