@@ -45,6 +45,7 @@ RUN groupadd -g 1000 vespa && \
 RUN  --mount=type=bind,target=/files,source=.,ro \
     if [[ -d /files/rpms ]]; then echo -e "[vespa-rpms-local]\nname=Local Vespa RPMs\nbaseurl=file:///files/rpms/\nenabled=1\ngpgcheck=0" > /etc/yum.repos.d/vespa-rpms-local.repo; fi && \
     dnf -y install vespa-$VESPA_VERSION && \
+    sh /files/maybe-replace-maven.sh && \
     dnf clean all && \
     rm -f /etc/yum.repos.d/vespa-rpms-local.repo && \
     rm -rf /var/cache/dnf
