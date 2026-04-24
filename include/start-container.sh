@@ -3,6 +3,15 @@
 
 set -e
 
+# OpenShift runs containers with arbitrary UIDs not present in /etc/passwd.
+# Inject a passwd entry so that utilities like 'id' and 'whoami' work.
+if ! whoami &>/dev/null 2>&1; then
+    if [ -w /etc/passwd ]; then
+        echo "vespa:x:$(id -u):0:Vespa:/opt/vespa:/bin/bash" >> /etc/passwd
+    fi
+    export VESPA_USER=vespa
+fi
+
 if [ $# -gt 1 ]; then
     echo "Allowed arguments to entrypoint are {configserver,services}."
     exit 1

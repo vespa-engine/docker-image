@@ -6,7 +6,7 @@ ARG ROOTFS_INSTALL_DIR=/tmp_install
 
 # Add vespa user before installing the Vespa RPMs to get a fixed UID/GID
 RUN groupadd -g 1000 vespa && \
-    useradd -u 1000 -g vespa -d /opt/vespa -s /sbin/nologin vespa && \
+    useradd -u 1000 -g vespa -G root -d /opt/vespa -s /sbin/nologin vespa && \
     mkdir -p $ROOTFS_INSTALL_DIR/etc && \
     cp -a /etc/passwd /etc/group /etc/shadow $ROOTFS_INSTALL_DIR/etc
 
@@ -77,6 +77,13 @@ RUN (find $ROOTFS_INSTALL_DIR/usr -name "*gdb*"    | xargs rm -rf) && \
 RUN mkdir -p $ROOTFS_INSTALL_DIR/run/lock && \
     chroot $ROOTFS_INSTALL_DIR truncate --size 0 /etc/machine-id && \
     echo 'LANG=C.utf8' > $ROOTFS_INSTALL_DIR/etc/locale.conf
+
+# OpenShift compatibility: make writable dirs accessible by GID 0 (arbitrary UIDs)
+RUN chmod g+w $ROOTFS_INSTALL_DIR/etc/passwd && \
+    chgrp -R 0 $ROOTFS_INSTALL_DIR/opt/vespa/logs $ROOTFS_INSTALL_DIR/opt/vespa/var \
+               $ROOTFS_INSTALL_DIR/opt/vespa/secure $ROOTFS_INSTALL_DIR/opt/vespa/var/zookeeper && \
+    chmod -R g+w $ROOTFS_INSTALL_DIR/opt/vespa/logs $ROOTFS_INSTALL_DIR/opt/vespa/var \
+                 $ROOTFS_INSTALL_DIR/opt/vespa/secure $ROOTFS_INSTALL_DIR/opt/vespa/var/zookeeper
 
 # Build the image
 FROM scratch

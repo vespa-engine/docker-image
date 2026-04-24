@@ -40,7 +40,7 @@ ARG SOURCE_GITREF=v$VESPA_VERSION
 ADD include/start-container.sh /usr/local/bin/start-container.sh
 
 RUN groupadd -g 1000 vespa && \
-    useradd -u 1000 -g vespa -d /opt/vespa -s /sbin/nologin vespa
+    useradd -u 1000 -g vespa -G root -d /opt/vespa -s /sbin/nologin vespa
 
 RUN  --mount=type=bind,target=/files,source=.,ro \
     if [[ -d /files/rpms ]]; then echo -e "[vespa-rpms-local]\nname=Local Vespa RPMs\nbaseurl=file:///files/rpms/\nenabled=1\ngpgcheck=0" > /etc/yum.repos.d/vespa-rpms-local.repo; fi && \
@@ -48,6 +48,11 @@ RUN  --mount=type=bind,target=/files,source=.,ro \
     dnf clean all && \
     rm -f /etc/yum.repos.d/vespa-rpms-local.repo && \
     rm -rf /var/cache/dnf
+
+RUN chmod g+w /etc/passwd && \
+    chgrp -R 0 /opt/vespa/logs /opt/vespa/var /opt/vespa/secure /opt/vespa/var/zookeeper && \
+    chmod -R g+w /opt/vespa/logs /opt/vespa/var /opt/vespa/secure /opt/vespa/var/zookeeper && \
+    chgrp 0 /opt/vespa/tmp 2>/dev/null; chmod g+w /opt/vespa/tmp 2>/dev/null; true
 
 LABEL org.opencontainers.image.authors="Vespa (https://vespa.ai)" \
       org.opencontainers.image.description="Easily serve your big data - generate responses in milliseconds at any scale and with any traffic volume. Read more at the Vespa project https://vespa.ai" \
