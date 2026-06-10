@@ -9,7 +9,7 @@ RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
     dnf -y install \
       dnf-plugins-core \
       epel-release && \
-    dnf config-manager --add-repo https://copr.fedorainfracloud.org/coprs/g/vespa/vespa/repo/epel-8/group_vespa-vespa-epel-8.repo && \
+    dnf -y config-manager --add-repo https://github.com/vespa-engine/vespa/raw/master/dist/vespa-engine.repo && \
     /usr/bin/crb enable && \
     dnf remove -y dnf-plugins-core && \
     dnf clean all && \
@@ -24,7 +24,7 @@ RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
     dnf -y install \
       dnf-plugins-core \
       epel-release && \
-    dnf config-manager --add-repo https://copr.fedorainfracloud.org/coprs/g/vespa/vespa/repo/epel-9/group_vespa-vespa-epel-9.repo && \
+    dnf -y config-manager --add-repo https://github.com/vespa-engine/vespa/raw/master/dist/vespa-engine.repo && \
     /usr/bin/crb enable && \
     dnf remove -y dnf-plugins-core && \
     dnf clean all && \
