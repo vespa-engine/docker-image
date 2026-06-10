@@ -1,0 +1,38 @@
+# Copyright Vespa.ai. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+
+ARG EL_BASE_IMAGE_8=docker.io/almalinux:8 
+ARG EL_BASE_IMAGE_9=docker.io/almalinux:9
+
+FROM $EL_BASE_IMAGE_9 AS engine-base-9
+RUN set -x; echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
+    echo "fastestmirror=0"         >> /etc/dnf/dnf.conf && \
+    dnf -y install \
+      dnf-plugins-core \
+      epel-release && \
+    dnf -y config-manager --add-repo https://github.com/vespa-engine/vespa/raw/master/dist/vespa-engine.repo && \
+    /usr/bin/crb enable && \
+    curl -sSL -o /tmp/vespa.spec "https://raw.githubusercontent.com/vespa-engine/vespa/master/dist/vespa.spec" && \
+    sed -e '/vespa-build-dep/d' -e '/^BuildRequires:/d' -e '/^Requires: %{name}/d' -e 's/^Requires:/BuildRequires:/' < /tmp/vespa.spec > /tmp/vesparun.spec && \
+    grep BuildReq /tmp/vesparun.spec && \
+    dnf -y --nobest builddep /tmp/vesparun.spec && \
+    rm -f /tmp/vesparun.spec && \
+    dnf clean all --enablerepo='*' && \
+    rm -rf /var/cache/dnf
+LABEL org.opencontainers.image.base.name="$EL_BASE_IMAGE_9"
+
+FROM $EL_BASE_IMAGE_8 AS engine-base-8
+RUN set -x; echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
+    echo "fastestmirror=0" >> /etc/dnf/dnf.conf && \
+    dnf -y install \
+      dnf-plugins-core \
+      epel-release && \
+    dnf -y config-manager --add-repo https://github.com/vespa-engine/vespa/raw/master/dist/vespa-engine.repo && \
+    /usr/bin/crb enable && \
+    curl -sSL -o /tmp/vespa.spec "https://raw.githubusercontent.com/vespa-engine/vespa/master/dist/vespa.spec" && \
+    sed -e '/vespa-build-dep/d' -e '/^BuildRequires:/d' -e '/^Requires: %{name}/d' -e 's/^Requires:/BuildRequires:/' < /tmp/vespa.spec > /tmp/vesparun.spec && \
+    grep BuildReq /tmp/vesparun.spec && \
+    dnf -y --nobest builddep /tmp/vesparun.spec && \
+    rm -f /tmp/vesparun.spec && \
+    dnf clean all --enablerepo='*' && \
+    rm -rf /var/cache/dnf
+LABEL org.opencontainers.image.base.name="$EL_BASE_IMAGE_8"
