@@ -17,7 +17,7 @@ RUN dnf \
         dnf-plugins-core \
         epel-release && \
     dnf config-manager \
-      --add-repo https://copr.fedorainfracloud.org/coprs/g/vespa/vespa/repo/centos-stream-8/group_vespa-vespa-epel-8.repo && \
+      --add-repo https://github.com/vespa-engine/vespa/raw/master/dist/vespa-engine.repo && \
     dnf config-manager \
       --enable powertools
 
