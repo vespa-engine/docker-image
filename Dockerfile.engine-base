@@ -11,7 +11,7 @@ RUN set -x; echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
       epel-release && \
     dnf -y config-manager --add-repo https://github.com/vespa-engine/vespa/raw/master/dist/vespa-engine.repo && \
     /usr/bin/crb enable && \
-    curl -sSL -o /tmp/vespa.spec "https://raw.githubusercontent.com/vespa-engine/vespa/master/dist/vespa.spec" && \
+    curl --fail --silent --show-error -L -o /tmp/vespa.spec "https://raw.githubusercontent.com/vespa-engine/vespa/master/dist/vespa.spec" && \
     sed -e '/vespa-build-dep/d' -e '/^BuildRequires:/d' -e '/^Requires: %{name}/d' -e 's/^Requires:/BuildRequires:/' < /tmp/vespa.spec > /tmp/vesparun.spec && \
     grep BuildReq /tmp/vesparun.spec && \
     dnf -y --nobest builddep /tmp/vesparun.spec && \
@@ -28,7 +28,7 @@ RUN set -x; echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
       epel-release && \
     dnf -y config-manager --add-repo https://github.com/vespa-engine/vespa/raw/master/dist/vespa-engine.repo && \
     /usr/bin/crb enable && \
-    curl -sSL -o /tmp/vespa.spec "https://raw.githubusercontent.com/vespa-engine/vespa/master/dist/vespa.spec" && \
+    curl --fail --silent --show-error -L -o /tmp/vespa.spec "https://raw.githubusercontent.com/vespa-engine/vespa/master/dist/vespa.spec" && \
     sed -e '/vespa-build-dep/d' -e '/^BuildRequires:/d' -e '/^Requires: %{name}/d' -e 's/^Requires:/BuildRequires:/' < /tmp/vespa.spec > /tmp/vesparun.spec && \
     grep BuildReq /tmp/vesparun.spec && \
     dnf -y --nobest builddep /tmp/vesparun.spec && \
