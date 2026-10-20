@@ -32,7 +32,7 @@ jobs:
     - name: Downloading Mend CLI
       run: |
         echo Downloading Mend CLI
-        curl https://downloads.mend.io/cli/linux_amd64/mend -o /usr/local/bin/mend && chmod +x /usr/local/bin/mend
+        curl --fail --silent --show-error https://downloads.mend.io/cli/linux_amd64/mend -o /usr/local/bin/mend && chmod +x /usr/local/bin/mend
 
     - name: Mend CLI Scan
       env:
