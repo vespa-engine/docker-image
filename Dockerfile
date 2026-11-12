@@ -10,6 +10,7 @@ RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
     dnf -y install \
       dnf-plugins-core \
       epel-release && \
+    dnf -y upgrade ca-certificates && \
     dnf -y config-manager --add-repo https://github.com/vespa-engine/vespa/raw/master/dist/vespa-engine.repo && \
     /usr/bin/crb enable && \
     dnf remove -y dnf-plugins-core && \
@@ -26,6 +27,7 @@ RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
     dnf -y install \
       dnf-plugins-core \
       epel-release && \
+    dnf -y upgrade ca-certificates && \
     dnf -y config-manager --add-repo https://github.com/vespa-engine/vespa/raw/master/dist/vespa-engine.repo && \
     /usr/bin/crb enable && \
     dnf remove -y dnf-plugins-core && \
