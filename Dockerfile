@@ -6,6 +6,7 @@ FROM docker.io/almalinux:8 AS el8
 
 RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
     echo "fastestmirror=0"         >> /etc/dnf/dnf.conf && \
+    dnf -y upgrade && \
     dnf -y install \
       dnf-plugins-core \
       epel-release && \
@@ -21,6 +22,7 @@ FROM docker.io/almalinux:9 AS el9
 
 RUN echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
     echo "fastestmirror=0"         >> /etc/dnf/dnf.conf && \
+    dnf -y upgrade && \
     dnf -y install \
       dnf-plugins-core \
       epel-release && \
@@ -43,6 +45,7 @@ RUN groupadd -g 1000 vespa && \
     useradd -u 1000 -g vespa -d /opt/vespa -s /sbin/nologin vespa
 
 RUN  --mount=type=bind,target=/files,source=.,ro \
+    dnf -y upgrade && \
     if [[ -d /files/rpms ]]; then echo -e "[vespa-rpms-local]\nname=Local Vespa RPMs\nbaseurl=file:///files/rpms/\nenabled=1\ngpgcheck=0" > /etc/yum.repos.d/vespa-rpms-local.repo; fi && \
     dnf -y install vespa-$VESPA_VERSION && \
     dnf clean all && \
