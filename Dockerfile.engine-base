@@ -1,11 +1,12 @@
 # Copyright Vespa.ai. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
 
-ARG EL_BASE_IMAGE_8=docker.io/almalinux:8 
+ARG EL_BASE_IMAGE_8=docker.io/almalinux:8
 ARG EL_BASE_IMAGE_9=docker.io/almalinux:9
 
 FROM $EL_BASE_IMAGE_9 AS engine-base-9
 RUN set -x; echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
     echo "fastestmirror=0"         >> /etc/dnf/dnf.conf && \
+    dnf -y upgrade && \
     dnf -y install \
       dnf-plugins-core \
       epel-release && \
@@ -23,6 +24,7 @@ LABEL org.opencontainers.image.base.name="$EL_BASE_IMAGE_9"
 FROM $EL_BASE_IMAGE_8 AS engine-base-8
 RUN set -x; echo "install_weak_deps=False" >> /etc/dnf/dnf.conf && \
     echo "fastestmirror=0" >> /etc/dnf/dnf.conf && \
+    dnf -y upgrade && \
     dnf -y install \
       dnf-plugins-core \
       epel-release && \
